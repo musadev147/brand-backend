@@ -1,0 +1,909 @@
+# 🚀 Brand Bridge (CreatorHub AI) — সম্পূর্ণ প্রোজেক্ট অ্যানালাইসিস ও Backend ডকুমেন্টেশন
+
+## 📌 প্রোজেক্ট সারসংক্ষেপ
+
+**Brand Bridge** হলো একটি **Influencer Marketing Marketplace** মোবাইল অ্যাপ — যেখানে **Brands/Clients** এবং **Content Creators/Influencers** একসাথে যুক্ত হয়ে ক্যাম্পেইন, গিগ, চ্যাট, পেমেন্ট, এবং AI-Powered ম্যাচিং এর মাধ্যমে কাজ করতে পারে।
+
+**Frontend:** Flutter (Dart) — GetX Routing + Provider State Management
+**Base API URL:** `https://api.briic.cloud/api/`
+**App Title:** CreatorHub AI
+
+---
+
+## 🏗️ বর্তমান Frontend Architecture
+
+```mermaid
+graph TD
+    A["main.dart"] --> B["MultiProvider"]
+    B --> C["ScreenUtilInit"]
+    C --> D["GetMaterialApp"]
+    D --> E["AppPages Routes"]
+    
+    E --> F["SplashScreen"]
+    F --> G["OnboardingScreen"]
+    G --> H["LoginScreen / RegisterScreen"]
+    H --> I["RoleSelectionScreen"]
+    I --> J["KycScreen"]
+    J --> K{"User Role?"}
+    K -->|Client| L["ClientHome + BottomNav"]
+    K -->|Creator| M["CreatorHome + BottomNav"]
+    
+    L --> L1["Home"]
+    L --> L2["Search Creator"]
+    L --> L3["AI Match"]
+    L --> L4["Campaigns"]
+    L --> L5["Settings"]
+    
+    M --> M1["Home"]
+    M --> M2["Browse Campaigns"]
+    M --> M3["Analytics"]
+    M --> M4["Settings"]
+```
+
+---
+
+## 📂 সম্পূর্ণ ফোল্ডার স্ট্রাকচার
+
+```
+brand_baget/
+├── lib/
+│   ├── main.dart                          # App Entry Point
+│   ├── constants/
+│   │   ├── app_colors.dart                # Color Tokens (Slate-Indigo Premium Theme)
+│   │   ├── app_constants.dart             # Storage Keys, RegExp, Defaults
+│   │   ├── custom_theme.dart              # MaterialApp Theme Config
+│   │   ├── text_font_style.dart           # Typography Styles
+│   │   ├── from_validation.dart           # Form Field Validators
+│   │   └── validator.dart                 # Advanced Validators (email, phone, NID, etc.)
+│   ├── features/
+│   │   ├── splash/splash_screen.dart
+│   │   ├── onboarding/onboarding_screen.dart
+│   │   ├── auth/
+│   │   │   ├── login_screen.dart
+│   │   │   ├── register_screen.dart
+│   │   │   └── role_selection_screen.dart
+│   │   ├── kyc/kyc_screen.dart
+│   │   ├── home/
+│   │   │   ├── client_home_screen.dart
+│   │   │   └── creator_home_screen.dart
+│   │   ├── creator_search/search_creator_screen.dart
+│   │   ├── creator_profile/creator_profile_screen.dart
+│   │   ├── ai_recommendation/ai_recommendation_screen.dart
+│   │   ├── campaign/
+│   │   │   ├── campaign_create_screen.dart
+│   │   │   └── campaign_list_screen.dart
+│   │   ├── proposal/proposal_screen.dart
+│   │   ├── chat/
+│   │   │   ├── chat_screen.dart           # Individual Chat + Contract/Escrow System
+│   │   │   └── chat_inbox_screen.dart     # All Conversations List
+│   │   ├── payment/payment_screen.dart
+│   │   ├── analytics/analytics_screen.dart
+│   │   ├── profile/profile_screen.dart
+│   │   ├── gig/
+│   │   │   ├── gig_create_screen.dart
+│   │   │   └── gig_details_screen.dart
+│   │   ├── wallet/wallet_screen.dart
+│   │   └── settings/
+│   │       ├── settings_screen.dart
+│   │       ├── two_step_verification_screen.dart
+│   │       └── order_tracking_screen.dart
+│   ├── networks/
+│   │   ├── endpoints.dart                 # সকল API Endpoint Definitions
+│   │   ├── api_acess.dart
+│   │   ├── rx_base.dart                   # RxDart Base
+│   │   ├── stream_cleaner.dart
+│   │   ├── dio/
+│   │   │   ├── dio.dart                   # Dio HTTP Client Singleton
+│   │   │   └── log.dart                   # Request/Response Logger
+│   │   ├── exception_handler/
+│   │   │   ├── data_source.dart           # Error Handler + Failure Model
+│   │   │   └── error_response.dart        # Response Code Constants
+│   │   └── internet_checker/              # Connectivity Check
+│   ├── provider/
+│   │   ├── marketplace_provider.dart      # 🔑 MAIN STATE — 1179 lines, ALL business logic
+│   │   ├── singnup_provider.dart          # Registration Form State
+│   │   ├── profile_provider.dart          # Profile Data State
+│   │   ├── forget_password_provider.dart  # Password Reset Flow
+│   │   ├── carosul_provider.dart          # Carousel State
+│   │   ├── marketplace_provider.dart      # App Validation
+│   │   └── onboarding_provider.dart       # Onboarding State
+│   ├── helpers/
+│   │   ├── all_routes.dart                # Legacy Route Definitions (commented out)
+│   │   ├── di.dart                        # GetStorage Dependency Injection
+│   │   ├── register_provider.dart         # Provider Registration List
+│   │   ├── navigation_service.dart        # Navigation Utility
+│   │   ├── loading_helper.dart            # EasyLoading Configuration
+│   │   ├── helper_methods.dart            # Utility Methods
+│   │   ├── dateuitl.dart                  # Date Formatting
+│   │   ├── responsive_utils.dart          # Screen Responsive Utils
+│   │   ├── toast.dart                     # Toast Messages
+│   │   └── ... (more utility files)
+│   ├── common_wigdets/                    # 37 Reusable Widgets
+│   │   ├── custom_navigation.dart         # Bottom Navigation Bar (role-based)
+│   │   ├── user_role.dart                 # UserRole Enum (client/creator)
+│   │   ├── custom_textfiled.dart          # Custom Text Fields
+│   │   ├── custom_dropdown_menu.dart      # Advanced Dropdown
+│   │   ├── custom_image_view.dart         # Image Viewer
+│   │   ├── home_promo_slider.dart         # Home Page Slider
+│   │   └── ... (30+ more widgets)
+│   └── route/
+│       ├── app_pages.dart                 # GetX Page Routing
+│       └── app_routes.dart                # Route Path Constants
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── fonts/ (Roboto, Poppins, Montserrat, Orbitron, Poor Story)
+└── pubspec.yaml
+```
+
+---
+
+## 👥 User Roles ও System Flow
+
+```mermaid
+graph LR
+    subgraph "User Types"
+        A["🏢 Client/Brand"]
+        B["🎬 Creator/Influencer"]
+    end
+    
+    subgraph "Client Actions"
+        A --> C1["Create Campaign"]
+        A --> C2["Search Creators"]
+        A --> C3["AI Match Request"]
+        A --> C4["Accept/Reject Proposals"]
+        A --> C5["Send Contract + Escrow Pay"]
+        A --> C6["Approve Delivery / Request Revision"]
+        A --> C7["Deposit to Wallet"]
+    end
+    
+    subgraph "Creator Actions"
+        B --> D1["Create Gig"]
+        B --> D2["Browse Campaigns"]
+        B --> D3["Submit Proposal"]
+        B --> D4["Accept Contract"]
+        B --> D5["Deliver Order"]
+        B --> D6["Withdraw Earnings"]
+        B --> D7["View Analytics"]
+    end
+```
+
+---
+
+## 🗄️ Backend এর জন্য Database Schema (সম্পূর্ণ ডিজাইন)
+
+> [!IMPORTANT]
+> নিচে প্রতিটি টেবিলের বিস্তারিত ER Diagram এবং ফিল্ড ডেফিনিশন দেওয়া হলো। এটি `marketplace_provider.dart` এর Data Models থেকে Derived।
+
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    USERS ||--o{ CREATOR_PROFILES : has
+    USERS ||--o{ CLIENT_PROFILES : has
+    USERS ||--o{ KYC_DOCUMENTS : submits
+    USERS ||--o{ CAMPAIGNS : creates
+    USERS ||--o{ GIGS : publishes
+    USERS ||--o{ PROPOSALS : submits
+    USERS ||--o{ CHAT_MESSAGES : sends
+    USERS ||--o{ ORDERS : participates
+    USERS ||--o{ WALLET_TRANSACTIONS : has
+    USERS ||--o{ NOTIFICATIONS : receives
+    
+    CAMPAIGNS ||--o{ PROPOSALS : has
+    CAMPAIGNS ||--o{ CHAT_THREADS : generates
+    
+    GIGS ||--o{ CHAT_THREADS : generates
+    
+    CHAT_THREADS ||--o{ CHAT_MESSAGES : contains
+    CHAT_MESSAGES ||--o| CONTRACTS : may_contain
+    
+    CONTRACTS ||--|| ORDERS : creates
+    ORDERS ||--o{ ORDER_DELIVERIES : has
+    ORDERS ||--o{ ORDER_REVISIONS : has
+    
+    USERS ||--|| WALLETS : has
+    WALLETS ||--o{ WALLET_TRANSACTIONS : logs
+```
+
+---
+
+### 📋 Table 1: `users`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK, AUTO_INCREMENT | Primary Key |
+| `name` | VARCHAR(255) | NOT NULL | Full Name |
+| `email` | VARCHAR(255) | UNIQUE, NOT NULL | Login Email |
+| `password` | VARCHAR(255) | NOT NULL | Hashed Password |
+| `phone` | VARCHAR(20) | NULLABLE | Phone Number |
+| `role` | ENUM('client','creator') | NOT NULL | User Role |
+| `avatar` | VARCHAR(500) | NULLABLE | Profile Picture URL |
+| `is_email_verified` | BOOLEAN | DEFAULT FALSE | Email OTP Verified |
+| `is_phone_verified` | BOOLEAN | DEFAULT FALSE | Phone Verified |
+| `is_kyc_verified` | BOOLEAN | DEFAULT FALSE | KYC Status |
+| `is_two_step_enabled` | BOOLEAN | DEFAULT FALSE | 2FA Enabled |
+| `is_fingerprint_enabled` | BOOLEAN | DEFAULT FALSE | Biometric Auth |
+| `is_face_verification_enabled` | BOOLEAN | DEFAULT FALSE | Face ID |
+| `is_phone_otp_enabled` | BOOLEAN | DEFAULT FALSE | Phone OTP |
+| `email_verified_at` | TIMESTAMP | NULLABLE | Verification Time |
+| `remember_token` | VARCHAR(100) | NULLABLE | Login Token |
+| `device_id` | VARCHAR(255) | NULLABLE | Device Info |
+| `created_at` | TIMESTAMP | DEFAULT CURRENT | Registration Time |
+| `updated_at` | TIMESTAMP | AUTO UPDATE | Last Updated |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft Delete |
+
+---
+
+### 📋 Table 2: `client_profiles`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK, AUTO_INCREMENT | — |
+| `user_id` | BIGINT | FK → users.id, UNIQUE | One-to-One |
+| `company_name` | VARCHAR(255) | NOT NULL | কোম্পানির নাম |
+| `business_type` | VARCHAR(255) | NULLABLE | ব্যবসার ধরন |
+| `designation` | VARCHAR(255) | NULLABLE | পদবি |
+| `location` | VARCHAR(255) | NULLABLE | Address |
+| `country` | VARCHAR(100) | NULLABLE | দেশ |
+| `budget_range` | DECIMAL(12,2) | DEFAULT 0.00 | বাজেট রেঞ্জ |
+| `business_number` | VARCHAR(100) | NULLABLE | Business Registration |
+| `din_number` | VARCHAR(100) | NULLABLE | DIN Number |
+| `tin_number` | VARCHAR(100) | NULLABLE | TIN Number |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 3: `creator_profiles`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK, AUTO_INCREMENT | — |
+| `user_id` | BIGINT | FK → users.id, UNIQUE | One-to-One |
+| `bio` | TEXT | NULLABLE | Creator Bio |
+| `location` | VARCHAR(255) | NULLABLE | Location |
+| `followers_count` | INT | DEFAULT 0 | Total Followers |
+| `avg_views` | INT | DEFAULT 0 | গড় ভিউ |
+| `engagement_rate` | DECIMAL(5,2) | DEFAULT 0.00 | Engagement % |
+| `fake_followers_pct` | INT | DEFAULT 0 | Fake Follower % |
+| `audience_quality_score` | DECIMAL(5,2) | DEFAULT 0.00 | Audience Quality |
+| `audience_age_genders` | VARCHAR(500) | NULLABLE | Audience Demographics |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 4: `creator_categories` (Many-to-Many)
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `creator_profile_id` | BIGINT | FK → creator_profiles.id | — |
+| `category` | VARCHAR(100) | NOT NULL | e.g., Tech, Fashion, Food, Gaming |
+
+---
+
+### 📋 Table 5: `creator_platform_links`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `creator_profile_id` | BIGINT | FK → creator_profiles.id | — |
+| `platform` | ENUM('YouTube','Instagram','TikTok','Facebook') | NOT NULL | Platform |
+| `link` | VARCHAR(500) | NOT NULL | Profile URL |
+| `followers` | INT | DEFAULT 0 | Platform-specific followers |
+| `is_verified` | BOOLEAN | DEFAULT FALSE | Social Verified |
+
+---
+
+### 📋 Table 6: `creator_portfolio`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `creator_profile_id` | BIGINT | FK | — |
+| `title` | VARCHAR(255) | NULLABLE | Portfolio Title |
+| `url` | VARCHAR(500) | NOT NULL | Video/Content URL |
+| `type` | ENUM('video','image','link') | DEFAULT 'link' | Content Type |
+
+---
+
+### 📋 Table 7: `creator_reviews`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `creator_profile_id` | BIGINT | FK | — |
+| `reviewer_user_id` | BIGINT | FK → users.id | Who reviewed |
+| `order_id` | BIGINT | FK → orders.id, NULLABLE | Related order |
+| `rating` | DECIMAL(3,2) | NOT NULL | 1.00 - 5.00 |
+| `comment` | TEXT | NULLABLE | Review text |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 8: `kyc_documents`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `user_id` | BIGINT | FK → users.id | — |
+| `document_type` | ENUM('nid','passport','driving_license','trade_license') | NOT NULL | ডকুমেন্ট ধরন |
+| `document_number` | VARCHAR(100) | NOT NULL | NID/Passport Number |
+| `front_image` | VARCHAR(500) | NOT NULL | সামনের ছবি |
+| `back_image` | VARCHAR(500) | NULLABLE | পেছনের ছবি |
+| `selfie_image` | VARCHAR(500) | NULLABLE | Selfie with Document |
+| `status` | ENUM('pending','approved','rejected') | DEFAULT 'pending' | Verification Status |
+| `rejection_reason` | TEXT | NULLABLE | Admin কেন Reject করেছে |
+| `verified_at` | TIMESTAMP | NULLABLE | Approval Time |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 9: `campaigns`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `client_user_id` | BIGINT | FK → users.id | ক্যাম্পেইন তৈরিকারী |
+| `title` | VARCHAR(255) | NOT NULL | ক্যাম্পেইন টাইটেল |
+| `product_name` | VARCHAR(255) | NOT NULL | প্রোডাক্ট নাম |
+| `description` | TEXT | NOT NULL | বিস্তারিত বর্ণনা |
+| `budget` | DECIMAL(12,2) | NOT NULL | বাজেট (USD) |
+| `deadline` | DATE | NOT NULL | Delivery Deadline |
+| `platform` | VARCHAR(100) | NOT NULL | YouTube/Instagram/TikTok |
+| `content_type` | VARCHAR(100) | NOT NULL | Video/Reel/Story |
+| `requirements` | TEXT | NULLABLE | বিশেষ শর্ত |
+| `status` | ENUM('open','in_progress','completed','cancelled') | DEFAULT 'open' | — |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 10: `proposals`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `campaign_id` | BIGINT | FK → campaigns.id | কোন ক্যাম্পেইনে |
+| `creator_user_id` | BIGINT | FK → users.id | কে পাঠিয়েছে |
+| `price` | DECIMAL(12,2) | NOT NULL | প্রস্তাবিত দাম |
+| `delivery_time` | VARCHAR(100) | NOT NULL | ডেলিভারি সময় |
+| `message` | TEXT | NOT NULL | Proposal Message |
+| `status` | ENUM('pending','accepted','rejected') | DEFAULT 'pending' | — |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 11: `gigs`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `creator_user_id` | BIGINT | FK → users.id | কে তৈরি করেছে |
+| `title` | VARCHAR(500) | NOT NULL | Gig Title |
+| `description` | TEXT | NOT NULL | বিস্তারিত |
+| `price` | DECIMAL(12,2) | NOT NULL | দাম |
+| `delivery_time` | VARCHAR(100) | NOT NULL | সময় |
+| `platform` | VARCHAR(100) | NOT NULL | Primary Platform |
+| `social_link` | VARCHAR(500) | NULLABLE | Primary Link |
+| `verified_followers` | INT | DEFAULT 0 | Verified Follower Count |
+| `banner_image` | VARCHAR(500) | NULLABLE | Banner URL |
+| `category` | VARCHAR(100) | NOT NULL | Tech/Fashion/Food etc. |
+| `region` | VARCHAR(255) | NULLABLE | এলাকা |
+| `deliverables` | TEXT | NULLABLE | কী কী দিবে |
+| `revisions` | VARCHAR(50) | DEFAULT '2 Revisions' | কতবার Edit |
+| `youtube_link` | VARCHAR(500) | NULLABLE | — |
+| `tiktok_link` | VARCHAR(500) | NULLABLE | — |
+| `facebook_link` | VARCHAR(500) | NULLABLE | — |
+| `instagram_link` | VARCHAR(500) | NULLABLE | — |
+| `youtube_followers` | INT | DEFAULT 0 | — |
+| `tiktok_followers` | INT | DEFAULT 0 | — |
+| `facebook_followers` | INT | DEFAULT 0 | — |
+| `instagram_followers` | INT | DEFAULT 0 | — |
+| `video_url` | VARCHAR(500) | NULLABLE | Sample Video |
+| `views_count` | INT | DEFAULT 0 | — |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Active/Inactive |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 12: `chat_threads`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `chat_key` | VARCHAR(100) | UNIQUE, NOT NULL | e.g., "c1_1", "gig_g2" |
+| `client_user_id` | BIGINT | FK → users.id | Client |
+| `creator_user_id` | BIGINT | FK → users.id | Creator |
+| `campaign_id` | BIGINT | FK, NULLABLE | Related Campaign |
+| `gig_id` | BIGINT | FK, NULLABLE | Related Gig |
+| `is_starred_by_client` | BOOLEAN | DEFAULT FALSE | — |
+| `is_starred_by_creator` | BOOLEAN | DEFAULT FALSE | — |
+| `last_message_at` | TIMESTAMP | NULLABLE | শেষ মেসেজের সময় |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 13: `chat_messages`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `chat_thread_id` | BIGINT | FK → chat_threads.id | কোন থ্রেডে |
+| `sender_user_id` | BIGINT | FK → users.id | কে পাঠিয়েছে |
+| `sender_role` | ENUM('client','creator') | NOT NULL | — |
+| `text` | TEXT | NOT NULL | মেসেজ |
+| `is_contract` | BOOLEAN | DEFAULT FALSE | Contract Message? |
+| `contract_title` | VARCHAR(255) | NULLABLE | Contract Project Name |
+| `contract_budget` | DECIMAL(12,2) | NULLABLE | Contract Amount |
+| `contract_deadline` | VARCHAR(100) | NULLABLE | Contract Duration |
+| `contract_status` | ENUM('pending','accepted','rejected','paid','released') | NULLABLE | — |
+| `is_read` | BOOLEAN | DEFAULT FALSE | পড়া হয়েছে? |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 14: `orders`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `order_id` | VARCHAR(50) | UNIQUE, NOT NULL | e.g., "ORD-K592X1" |
+| `chat_thread_id` | BIGINT | FK → chat_threads.id | — |
+| `contract_message_id` | BIGINT | FK → chat_messages.id | Related Contract |
+| `title` | VARCHAR(255) | NOT NULL | Order Title |
+| `price` | DECIMAL(12,2) | NOT NULL | মূল্য |
+| `delivery_time` | VARCHAR(100) | NOT NULL | — |
+| `client_user_id` | BIGINT | FK → users.id | — |
+| `creator_user_id` | BIGINT | FK → users.id | — |
+| `status` | ENUM('pending','in_progress','delivered','revision_requested','completed','cancelled') | DEFAULT 'pending' | — |
+| `delivery_notes` | TEXT | NULLABLE | ডেলিভারি নোটস |
+| `revision_notes` | TEXT | NULLABLE | Revision Request Note |
+| `revisions_left` | INT | DEFAULT 2 | কতবার Revision বাকি |
+| `created_at` | TIMESTAMP | — | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 15: `wallets`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `user_id` | BIGINT | FK → users.id, UNIQUE | — |
+| `deposit_balance` | DECIMAL(12,2) | DEFAULT 0.00 | Client: Deposit, Creator: Available |
+| `lifetime_spent` | DECIMAL(12,2) | DEFAULT 0.00 | Client Only |
+| `withdrawn_balance` | DECIMAL(12,2) | DEFAULT 0.00 | Creator Only |
+| `currency` | VARCHAR(10) | DEFAULT 'USD' | — |
+| `updated_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 16: `wallet_transactions`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `wallet_id` | BIGINT | FK → wallets.id | — |
+| `user_id` | BIGINT | FK → users.id | — |
+| `type` | ENUM('deposit','withdrawal','escrow_lock','escrow_release','refund') | NOT NULL | — |
+| `amount` | DECIMAL(12,2) | NOT NULL | পরিমাণ |
+| `balance_after` | DECIMAL(12,2) | NOT NULL | পরের Balance |
+| `description` | VARCHAR(500) | NULLABLE | — |
+| `related_order_id` | BIGINT | FK, NULLABLE | — |
+| `payment_method` | VARCHAR(100) | NULLABLE | bKash/Nagad/Bank/Card |
+| `status` | ENUM('pending','completed','failed') | DEFAULT 'completed' | — |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 17: `notifications`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `user_id` | BIGINT | FK → users.id | কাকে |
+| `message` | TEXT | NOT NULL | Notification Text |
+| `type` | VARCHAR(50) | NULLABLE | campaign/order/payment/system |
+| `is_read` | BOOLEAN | DEFAULT FALSE | — |
+| `related_id` | BIGINT | NULLABLE | Related Entity ID |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+### 📋 Table 18: `password_resets`
+
+| Column | Type | Constraints | বর্ণনা |
+|--------|------|-------------|--------|
+| `id` | BIGINT | PK | — |
+| `email` | VARCHAR(255) | NOT NULL | — |
+| `otp` | VARCHAR(10) | NOT NULL | OTP Code |
+| `is_verified` | BOOLEAN | DEFAULT FALSE | — |
+| `expires_at` | TIMESTAMP | NOT NULL | OTP Expiry |
+| `created_at` | TIMESTAMP | — | — |
+
+---
+
+## 🔌 সম্পূর্ণ Backend API Endpoints যেগুলো লাগবে
+
+> [!NOTE]
+> নিচে Frontend থেকে Derived সকল API Endpoints এবং তাদের Details দেওয়া হলো। প্রতিটি Module আলাদা করা হয়েছে।
+
+### 🔐 Module 1: Authentication
+
+| Method | Endpoint | বর্ণনা | Request Body | Response |
+|--------|----------|--------|-------------|----------|
+| POST | `/auth/register` | নতুন User Registration | `{name, email, password, password_confirmation, role}` | `{user, token, message}` |
+| POST | `/auth/login` | User Login | `{email, password, device_id}` | `{user, token}` |
+| POST | `/auth/verify-email` | Email OTP Verify | `{email, otp}` | `{message, verified}` |
+| POST | `/auth/resend-otp` | OTP আবার পাঠান | `{email}` | `{message}` |
+| POST | `/auth/forgot-password` | Password Reset Request | `{email}` | `{message}` |
+| POST | `/auth/verify-password-reset-otp` | Reset OTP Verify | `{email, otp}` | `{message, token}` |
+| POST | `/auth/reset-password` | নতুন Password সেট | `{email, otp, password, password_confirmation}` | `{message}` |
+| POST | `/auth/logout` | Logout | — | `{message}` |
+
+---
+
+### 👤 Module 2: Profile Management
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| GET | `/profile/get-user` | নিজের Profile Data আনো | — |
+| PUT | `/profile/update` | Profile Edit করো | `{name, email, phone, company_name, ...}` |
+| POST | `/profile/update-avatar` | Avatar Upload | `multipart: avatar` |
+| PUT | `/profile/update-password` | Password Change | `{current_password, password, password_confirmation}` |
+| DELETE | `/profile/delete` | Account Delete | — |
+| POST | `/profile/update-2fa` | 2FA Settings Update | `{two_step, fingerprint, face_verification, phone_otp}` |
+
+---
+
+### 📝 Module 3: KYC Verification
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| POST | `/kyc/submit` | KYC ডকুমেন্ট Submit | `multipart: {document_type, document_number, front_image, back_image, selfie_image}` |
+| GET | `/kyc/status` | KYC Status Check | — |
+
+---
+
+### 🎯 Module 4: Campaign Management
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| POST | `/campaigns/create` | নতুন Campaign তৈরি | `{title, product_name, description, budget, deadline, platform, content_type, requirements}` |
+| GET | `/campaigns` | সব Campaign List | Query: `?status=open&page=1` |
+| GET | `/campaigns/{id}` | Single Campaign Details | — |
+| PUT | `/campaigns/{id}/update` | Campaign Edit | Same as create |
+| DELETE | `/campaigns/{id}/delete` | Campaign Delete | — |
+| PUT | `/campaigns/{id}/status` | Status Change | `{status}` |
+
+---
+
+### 📨 Module 5: Proposals
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| POST | `/proposals/submit` | Proposal Submit করো | `{campaign_id, price, delivery_time, message}` |
+| GET | `/proposals/campaign/{campaign_id}` | Campaign এর সব Proposals | — |
+| PUT | `/proposals/{id}/status` | Accept/Reject Proposal | `{status: 'accepted'/'rejected'}` |
+| GET | `/proposals/my` | আমার Submit করা Proposals | — |
+
+---
+
+### 🎨 Module 6: Gigs (Creator Services)
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| POST | `/gigs/create` | নতুন Gig তৈরি | `{title, description, price, delivery_time, platform, category, region, deliverables, revisions, youtube_link, instagram_link, ...}` (multipart for banner) |
+| GET | `/gigs` | সব Gig List | Query: `?category=Tech&platform=YouTube&page=1` |
+| GET | `/gigs/{id}` | Single Gig Details | — |
+| PUT | `/gigs/{id}/update` | Gig Edit | Same as create |
+| DELETE | `/gigs/{id}/delete` | Gig Delete | — |
+| POST | `/gigs/verify-social` | Social Link Verify (Scraper) | `{platform, url}` → `{channel_name, followers, is_verified}` |
+
+---
+
+### 💬 Module 7: Chat & Messaging (Real-time)
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| GET | `/chats/threads` | আমার সব Chat Threads | — |
+| GET | `/chats/threads/{thread_id}/messages` | Thread এর Messages | Query: `?page=1` |
+| POST | `/chats/messages/send` | মেসেজ পাঠাও | `{thread_id, text}` |
+| POST | `/chats/contracts/send` | Contract/Escrow Message পাঠাও | `{thread_id, contract_title, contract_budget, contract_deadline}` |
+| PUT | `/chats/contracts/{message_id}/respond` | Contract Accept/Reject | `{status: 'accepted'/'rejected'/'paid'}` |
+| PUT | `/chats/threads/{thread_id}/star` | Star/Unstar Chat | — |
+| POST | `/chats/threads/create` | নতুন Chat শুরু | `{creator_user_id, campaign_id?, gig_id?}` |
+
+> [!TIP]
+> Real-time Messaging এর জন্য **Laravel Reverb** অথবা **Pusher** WebSocket ব্যবহার করা উচিত। Socket event: `chat.{thread_id}` channel এ `MessageSent` event broadcast করবে।
+
+---
+
+### 📦 Module 8: Orders & Delivery
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| GET | `/orders` | আমার সব Orders | Query: `?status=in_progress&role=client` |
+| GET | `/orders/{id}` | Single Order Details | — |
+| POST | `/orders/{id}/deliver` | Creator ডেলিভারি দিবে | `{delivery_notes}` (multipart: files) |
+| POST | `/orders/{id}/request-revision` | Client Revision চাইবে | `{revision_notes}` |
+| POST | `/orders/{id}/approve` | Client Approve করবে → Escrow Release | — |
+| POST | `/orders/{id}/extend-timeline` | Timeline বাড়াও | `{extra_days}` |
+| POST | `/orders/{id}/cancel` | Order Cancel | `{reason}` |
+
+---
+
+### 💰 Module 9: Wallet & Payment
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| GET | `/wallet` | Wallet Balance Info | — |
+| POST | `/wallet/deposit` | Client Fund Deposit | `{amount, payment_method}` |
+| POST | `/wallet/withdraw` | Creator Earnings Withdraw | `{amount, bank_details}` |
+| GET | `/wallet/transactions` | Transaction History | Query: `?type=deposit&page=1` |
+| POST | `/wallet/escrow/lock` | Escrow Fund Lock (Auto) | `{order_id, amount}` |
+| POST | `/wallet/escrow/release` | Escrow Fund Release (Auto) | `{order_id}` |
+
+---
+
+### 🤖 Module 10: AI Features
+
+| Method | Endpoint | বর্ণনা | Request Body |
+|--------|----------|--------|-------------|
+| POST | `/ai/match-campaign` | AI Creator Matching | `{campaign_requirement}` → `[{creator, match_percentage, reasons}]` |
+| POST | `/ai/generate-script` | AI Script Generator | `{campaign_title, product_name}` → `{concept, hook, body, cta, hashtags}` |
+| POST | `/ai/check-fake-followers` | Fake Follower Checker | `{creator_id}` → `{quality_score, fake_pct, growth_timeline}` |
+
+---
+
+### 📊 Module 11: Analytics
+
+| Method | Endpoint | বর্ণনা | Response |
+|--------|----------|--------|----------|
+| GET | `/analytics/creator` | Creator Performance | `{total_earnings, orders_completed, avg_rating, views_data}` |
+| GET | `/analytics/client` | Client Spending | `{campaigns_active, total_spent, creators_hired, roi_data}` |
+
+---
+
+### 🔍 Module 12: Creator Search
+
+| Method | Endpoint | বর্ণনা | Query Params |
+|--------|----------|--------|-------------|
+| GET | `/creators/search` | Creator Search | `?q=tech&category=Gaming&platform=YouTube&location=Dhaka&min_followers=50000` |
+| GET | `/creators/{id}/profile` | Creator Public Profile | — |
+
+---
+
+### ⚙️ Module 13: Settings & Security
+
+| Method | Endpoint | বর্ণনা |
+|--------|----------|--------|
+| GET | `/settings/static-pages` | Legal Pages (Terms, Privacy, FAQ) |
+| PUT | `/settings/two-step` | Two-Step Verification Toggle |
+| POST | `/settings/verify-phone` | Phone OTP Send |
+| POST | `/settings/verify-phone-otp` | Phone OTP Confirm |
+
+---
+
+## 🏭 Recommended Backend Technology Stack
+
+> [!IMPORTANT]
+> এই প্রোজেক্টের জন্য নিচের Stack সবচেয়ে ভালো কাজ করবে:
+
+| Component | Technology | কেন? |
+|-----------|-----------|------|
+| **Backend Framework** | Laravel 11 (PHP) | Existing API `api.briic.cloud` already uses Laravel pattern |
+| **Database** | MySQL 8.0 / PostgreSQL 16 | Relational Data, Complex Queries |
+| **Authentication** | Laravel Sanctum | Token-based API Auth (Bearer Token) |
+| **Real-time Chat** | Laravel Reverb / Pusher | WebSocket for Chat |
+| **File Storage** | AWS S3 / DigitalOcean Spaces | Avatar, KYC Docs, Gig Banners |
+| **Queue** | Laravel Queue + Redis | Notifications, Email, AI Jobs |
+| **Mail** | Laravel Mail + Mailgun/SMTP | OTP, Email Verification |
+| **Payment** | SSLCommerz / bKash API / Stripe | Bangladesh Payment Gateway |
+| **AI Engine** | OpenAI API / Custom ML | Creator Matching, Script Gen |
+| **Caching** | Redis | API Response Cache, Rate Limit |
+| **Deployment** | Docker + Nginx + Supervisor | Production Ready |
+
+---
+
+## 🔄 Core Business Logic Flow
+
+### Flow 1: Campaign → Proposal → Contract → Order → Payment
+
+```mermaid
+sequenceDiagram
+    participant C as Client/Brand
+    participant S as Server
+    participant CR as Creator
+    
+    C->>S: POST /campaigns/create
+    S-->>C: Campaign Created ✅
+    
+    CR->>S: GET /campaigns (browse open)
+    S-->>CR: Campaign List
+    
+    CR->>S: POST /proposals/submit
+    S-->>CR: Proposal Submitted ✅
+    S-->>C: 🔔 Notification: New Proposal
+    
+    C->>S: PUT /proposals/{id}/status (accept)
+    S-->>C: Proposal Accepted ✅
+    S-->>CR: 🔔 Notification: Accepted
+    
+    Note over C,CR: Chat Thread Auto-Created
+    
+    C->>S: POST /chats/contracts/send
+    S-->>CR: 📋 Contract Message (Title, Budget, Deadline)
+    
+    CR->>S: PUT /chats/contracts/{id}/respond (accepted)
+    S-->>C: Contract Accepted ✅
+    
+    C->>S: PUT /chats/contracts/{id}/respond (paid)
+    Note over S: 💰 Escrow Lock: Client Wallet → Escrow
+    S-->>CR: 🔔 Escrow Funded! Start Work
+    
+    Note over S: 📦 Order Created Automatically
+    
+    CR->>S: POST /orders/{id}/deliver
+    S-->>C: 🔔 Delivery Received!
+    
+    alt Client Happy
+        C->>S: POST /orders/{id}/approve
+        Note over S: 💰 Escrow Release → Creator Wallet
+        S-->>CR: 🔔 Payment Released! $450 Added
+    else Client Wants Changes
+        C->>S: POST /orders/{id}/request-revision
+        S-->>CR: 🔔 Revision Requested
+        CR->>S: POST /orders/{id}/deliver (updated)
+    end
+```
+
+### Flow 2: Gig → Direct Order
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    participant CR as Creator
+    
+    C->>S: GET /gigs (browse)
+    C->>S: GET /gigs/{id} (details)
+    C->>S: POST /chats/threads/create (gig_id)
+    Note over C,CR: Chat Thread Created
+    C->>S: POST /chats/messages/send (negotiate)
+    CR->>S: POST /chats/messages/send (reply)
+    C->>S: POST /chats/contracts/send (finalize deal)
+    Note over S: Same Contract → Escrow → Order Flow
+```
+
+---
+
+## 🗂️ বর্তমান Data Models (Frontend এ যা আছে)
+
+Frontend এ [marketplace_provider.dart](file:///Users/musamac/StudioProjects/brand_baget/lib/provider/marketplace_provider.dart) ফাইলে নিচের Models define করা আছে:
+
+| Model | বর্ণনা | Key Fields |
+|-------|--------|------------|
+| `CreatorModel` | Creator Profile Data | id, name, avatar, categories, followersCount, engagementRate, avgViews, rating, location, bio, platformLinks, fakeFollowersPct, audienceQualityScore, portfolio, reviews |
+| `CampaignModel` | Campaign Data | id, title, productName, description, budget, deadline, platform, contentType, requirements, status, proposals[] |
+| `ProposalModel` | Proposal Data | id, campaignId, creatorId, creatorName, price, deliveryTime, message, status |
+| `ChatMessage` | Chat Message + Contract | id, senderName, senderRole, text, time, isContract, contractTitle, contractBudget, contractDeadline, contractStatus |
+| `GigModel` | Creator Gig/Service | id, creatorId, title, description, price, deliveryTime, platform, socialLink, verifiedFollowers, bannerImage, category, region, deliverables, revisions, + per-platform links & followers |
+| `OrderModel` | Order/Delivery Tracking | orderId, chatId, title, price, deliveryTime, clientName, creatorName, status, deliveryNotes, revisionNotes, revisionsLeft |
+
+---
+
+## ⚠️ User Review Required
+
+> [!WARNING]
+> বর্তমানে **সম্পূর্ণ business logic Mock Data দিয়ে Frontend এ চলছে** — কোনো real API call হচ্ছে না। Backend তৈরি করার পর প্রতিটি Provider method কে API call দিয়ে replace করতে হবে।
+
+> [!IMPORTANT]
+> **পেমেন্ট গেটওয়ে নির্বাচন করুন:**
+> - Bangladesh-focused: **SSLCommerz** (bKash, Nagad, Card)
+> - International: **Stripe**
+> - উভয়ই?
+
+> [!IMPORTANT]
+> **Real-time Chat এর জন্য:**
+> - Laravel Reverb (Self-hosted WebSocket — ফ্রি)
+> - Pusher (Third-party — সহজ কিন্তু পেইড)
+> - Firebase Realtime DB (Google — ফ্রি tier available)
+
+---
+
+## Open Questions
+
+1. **Backend Language/Framework:** আমি Laravel 11 recommend করছি কারণ existing API `api.briic.cloud` এটা use করে মনে হচ্ছে। আপনি কি Laravel-ই চান, নাকি Node.js/Express অথবা Django?
+
+2. **Database:** MySQL নাকি PostgreSQL? (MySQL সহজ, PostgreSQL more scalable)
+
+3. **Hosting:** কোথায় deploy করবেন? (VPS / AWS / DigitalOcean / Railway?)
+
+4. **Admin Panel:** Backend এর সাথে Admin Dashboard লাগবে কি? (KYC approve, User manage, Campaign moderate, etc.)
+
+5. **Payment Gateway:** বাংলাদেশের জন্য SSLCommerz/bKash নাকি International Stripe?
+
+6. **AI Features:** Real AI (OpenAI API) নাকি Rule-based matching (যেটা এখন Mock data দিয়ে আছে)?
+
+---
+
+## Proposed Implementation Plan
+
+Backend তৈরি করতে এই ধাপগুলো Follow করতে হবে:
+
+### Phase 1: Database & Core Setup
+- [ ] Laravel project setup with Sanctum auth
+- [ ] MySQL/PostgreSQL database migrations (উপরের 18 টা table)
+- [ ] Seeders with sample data
+- [ ] Base API response structure
+
+### Phase 2: Authentication Module
+- [ ] Register, Login, Logout APIs
+- [ ] Email OTP verification
+- [ ] Forgot/Reset password flow
+- [ ] Role-based middleware (client/creator)
+
+### Phase 3: Profile & KYC
+- [ ] Profile CRUD APIs
+- [ ] Avatar upload (S3)
+- [ ] KYC document upload & verification system
+- [ ] 2FA settings API
+
+### Phase 4: Campaign & Proposals
+- [ ] Campaign CRUD
+- [ ] Proposal submit & management
+- [ ] Status workflow (open → in_progress → completed)
+
+### Phase 5: Gigs
+- [ ] Gig CRUD with multi-platform social links
+- [ ] Social link verification (web scraper/API)
+- [ ] Gig search with filters
+
+### Phase 6: Chat & Contracts
+- [ ] Chat thread creation
+- [ ] Real-time messaging (WebSocket)
+- [ ] Contract/Escrow message system
+- [ ] Star/Unstar chats
+
+### Phase 7: Orders & Delivery
+- [ ] Order auto-creation from contracts
+- [ ] Delivery submission
+- [ ] Revision request flow
+- [ ] Timeline extension
+- [ ] Order approval → Escrow release
+
+### Phase 8: Wallet & Payments
+- [ ] Wallet system (Client + Creator)
+- [ ] Deposit/Withdraw APIs
+- [ ] Escrow lock/release mechanism
+- [ ] Payment gateway integration
+- [ ] Transaction history
+
+### Phase 9: AI Features
+- [ ] Creator matching algorithm
+- [ ] Script generation (OpenAI integration)
+- [ ] Fake follower analysis
+
+### Phase 10: Frontend Integration
+- [ ] Replace all Mock data with real API calls
+- [ ] WebSocket integration for chat
+- [ ] Push notifications
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- `php artisan test` — Laravel Feature & Unit Tests
+- Postman Collection export for all API endpoints
+
+### Manual Verification
+- Flutter app তে API connect করে test
+- Chat real-time test (multiple devices)
+- Payment flow test (sandbox)

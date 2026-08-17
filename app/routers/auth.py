@@ -55,11 +55,13 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         role=request.role,
     )
 
-    # 📧 In production: send OTP via email
-    # For now, log to console
-    print(f"\n{'='*50}")
-    print(f"📧 EMAIL VERIFICATION OTP for {request.email}: {otp_code}")
-    print(f"{'='*50}\n")
+    # 📧 Send OTP via Resend
+    from app.utils.email import send_otp_email
+    send_otp_email(
+        to_email=request.email, 
+        otp_code=otp_code, 
+        subject="Brand Bridge - Email Verification OTP"
+    )
 
     return AuthResponse(
         user=UserResponse.model_validate(user),
@@ -120,10 +122,13 @@ def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
 def resend_otp(request: ResendOTPRequest, db: Session = Depends(get_db)):
     otp_code = auth_service.resend_email_otp(db=db, email=request.email)
 
-    # 📧 In production: send via email
-    print(f"\n{'='*50}")
-    print(f"📧 RESENT OTP for {request.email}: {otp_code}")
-    print(f"{'='*50}\n")
+    # 📧 Send via Resend
+    from app.utils.email import send_otp_email
+    send_otp_email(
+        to_email=request.email, 
+        otp_code=otp_code, 
+        subject="Brand Bridge - New Email Verification OTP"
+    )
 
     return MessageResponse(
         message=f"নতুন OTP পাঠানো হয়েছে! (New OTP sent! OTP: {otp_code})",
@@ -140,10 +145,13 @@ def resend_otp(request: ResendOTPRequest, db: Session = Depends(get_db)):
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
     otp_code = auth_service.forgot_password(db=db, email=request.email)
 
-    # 📧 In production: send via email
-    print(f"\n{'='*50}")
-    print(f"🔑 PASSWORD RESET OTP for {request.email}: {otp_code}")
-    print(f"{'='*50}\n")
+    # 📧 Send via Resend
+    from app.utils.email import send_otp_email
+    send_otp_email(
+        to_email=request.email, 
+        otp_code=otp_code, 
+        subject="Brand Bridge - Password Reset OTP"
+    )
 
     return MessageResponse(
         message=f"পাসওয়ার্ড রিসেট OTP পাঠানো হয়েছে! (Password reset OTP sent! OTP: {otp_code})",

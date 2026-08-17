@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
 
+    # Email (Resend)
+    RESEND_API_KEY: str = "re_abzMSrT5..." # Provide a default but it will be loaded from .env
+    FROM_EMAIL: str = "onboarding@resend.dev"
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

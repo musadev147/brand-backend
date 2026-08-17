@@ -18,6 +18,7 @@ from sqlalchemy import (
     String,
     func,
 )
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -64,6 +65,11 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     deleted_at = Column(DateTime, nullable=True)  # Soft delete
+
+    # Relationships
+    client_profile = relationship("ClientProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    creator_profile = relationship("CreatorProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    kyc_documents = relationship("KYCDocument", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}', role='{self.role}')>"
